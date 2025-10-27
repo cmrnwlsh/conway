@@ -117,6 +117,7 @@ impl State {
           (KeyCode::Char('z'), _) => self.view.zoom = !self.view.zoom,
           (KeyCode::Char('['), _) => self.view.cursor.pattern.prev(),
           (KeyCode::Char(']'), _) => self.view.cursor.pattern.next(),
+          (KeyCode::Char('r'), KeyModifiers::CONTROL) => self.cells.clear(),
           (KeyCode::Char(' '), _) if !self.view.cursor.hidden && self.view.zoom => {
             self.place_pattern()
           }
