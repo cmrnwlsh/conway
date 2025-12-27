@@ -13,74 +13,100 @@ use ratatui::{
 };
 
 use crate::{
+    any_changed,
     io::{Io, KeyPress, Size},
     sim::Cells,
 };
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Cursor>()
-        .add_systems(PostUpdate, render)
-        .add_systems(Update, input);
+        .init_resource::<Translation>()
+        .init_resource::<Bounds>()
+        .add_systems(Update, input)
+        .add_systems(PostUpdate, render);
 }
 
-fn render(mut io: ResMut<Io>, view: View) -> Result<()> {
-    Ok(io.draw(|frame| frame.render_widget(view, frame.area()))?).map(|_| ())
-}
-
-fn input(mut cursor: ResMut<Cursor>, mut keys: MessageReader<KeyPress>) {
+fn input(
+    mut cursor: ResMut<Cursor>,
+    mut trans: ResMut<Translation>,
+    mut keys: MessageReader<KeyPress>,
+) {
     for key in keys.read() {
         match (key.code, key.modifiers) {
-            (KeyCode::Left, KeyModifiers::SHIFT) => cursor.trans.x -= 1,
-            (KeyCode::Right, KeyModifiers::SHIFT) => cursor.trans.x += 1,
-            (KeyCode::Up, KeyModifiers::SHIFT) => cursor.trans.y += 1,
-            (KeyCode::Down, KeyModifiers::SHIFT) => cursor.trans.y -= 1,
-            (KeyCode::Left, _) => cursor.pos.x -= 1,
-            (KeyCode::Right, _) => cursor.pos.x += 1,
-            (KeyCode::Up, _) => cursor.pos.y += 1,
-            (KeyCode::Down, _) => cursor.pos.y -= 1,
+            (KeyCode::Left, KeyModifiers::SHIFT) => trans.x -= 1,
+            (KeyCode::Right, KeyModifiers::SHIFT) => trans.x += 1,
+            (KeyCode::Up, KeyModifiers::SHIFT) => trans.y += 1,
+            (KeyCode::Down, KeyModifiers::SHIFT) => trans.y -= 1,
+            (KeyCode::Left, _) => cursor.x -= 1,
+            (KeyCode::Right, _) => cursor.x += 1,
+            (KeyCode::Up, _) => cursor.y += 1,
+            (KeyCode::Down, _) => cursor.y -= 1,
             _ => {}
         }
     }
 }
 
-#[derive(Resource, Debug, Default)]
-pub struct Cursor {
-    pos: I64Vec2,
-    trans: I64Vec2,
+fn render(mut io: ResMut<Io>, view: View) -> Result<()> {
+    Ok(if view.is_changed() {
+        io.draw(|frame| frame.render_widget(view, frame.area()))
+            .map(|_| ())?
+    })
 }
 
+fn wrap_cursor(cursor: ResMut<Cursor>, bounds: Res<Bounds>) {}
+
+#[derive(Resource, Default, Deref, DerefMut)]
+pub struct Cursor(I64Vec2);
+
+#[derive(Resource, Default, Deref, DerefMut)]
+struct Translation(I64Vec2);
+
+#[derive(Resource, Default)]
+struct Bounds([f64; 2], [f64; 2]);
+
 #[derive(SystemParam)]
-pub struct View<'w> {
+struct View<'w> {
     cursor: Res<'w, Cursor>,
+    trans: Res<'w, Translation>,
     cells: Res<'w, Cells>,
     size: Res<'w, Size>,
+    bounds: ResMut<'w, Bounds>,
+}
+
+impl<'w> View<'w> {
+    fn is_changed(&self) -> bool {
+        any_changed![self.cursor, self.trans, self.cells, self.size]
+    }
 }
 
 impl<'w> Widget for View<'w> {
-    fn render(self, area: Rect, buf: &mut Buffer) {
+    fn render(mut self, area: Rect, buf: &mut Buffer) {
         let layout::Rect { width, height, .. } = area;
         let x_range = (width - 1) as f64;
         let y_range = (height * 2 - 1) as f64;
-        let [x_min, x_max] = [-x_range / 2., x_range / 2.].map(|p| p + self.cursor.trans.x as f64);
-        let [y_min, y_max] = [-y_range / 2., y_range / 2.].map(|p| p + self.cursor.trans.y as f64);
+        let Bounds([ref mut x_min, ref mut x_max], [ref mut y_min, ref mut y_max]) = *self.bounds;
+
+        [*x_min, *x_max] = [-x_range / 2., x_range / 2.].map(|p| p + self.trans.x as f64);
+        [*y_min, *y_max] = [-y_range / 2., y_range / 2.].map(|p| p + self.trans.y as f64);
+
         Canvas::default()
             .marker(Marker::HalfBlock)
-            .x_bounds([x_min, x_max])
-            .y_bounds([y_min, y_max])
+            .x_bounds([*x_min, *x_max])
+            .y_bounds([*y_min, *y_max])
             .paint(|ctx| {
                 ctx.draw(&Points {
                     coords: &self
                         .cells
                         .subset(
-                            [x_min, y_min].map(|p| p as i64),
-                            [x_max, y_max].map(|p| p as i64),
+                            [*x_min, *y_min].map(|p| p as i64),
+                            [*x_max, *y_max].map(|p| p as i64),
                         )
                         .map(|&[x, y]| (x as f64, y as f64))
                         .collect::<Vec<_>>(),
                     color: Color::White,
                 });
                 ctx.draw(&Points {
-                    coords: &[(self.cursor.pos.x as f64, self.cursor.pos.y as f64)],
+                    coords: &[(self.cursor.x as f64, self.cursor.y as f64)],
                     color: Color::Cyan,
                 })
             })
