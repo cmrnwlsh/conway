@@ -1,4 +1,4 @@
-use bevy::{platform::collections::HashSet, prelude::*};
+use bevy::{math::I64Vec2, platform::collections::HashSet, prelude::*};
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Startup, |world: &mut World| {
@@ -25,5 +25,18 @@ impl Cells {
         [max_x, max_y]: [i64; 2],
     ) -> impl Iterator<Item = &[i64; 2]> {
         (min_y..=max_y).flat_map(move |y| (min_x..=max_x).filter_map(move |x| self.get(&[x, y])))
+    }
+
+    pub fn toggle(&mut self, cell: &I64Vec2) {
+        let I64Vec2 { x, y } = *cell;
+        if self.contains(&[x, y]) {
+            self.remove(&[x, y])
+        } else {
+            self.insert([x, y])
+        };
+    }
+
+    pub fn next_set(&self) -> HashSet<[i64; 2]> {
+        todo!()
     }
 }

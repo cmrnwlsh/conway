@@ -22,13 +22,14 @@ pub fn plugin(app: &mut App) {
     app.init_resource::<Cursor>()
         .init_resource::<Translation>()
         .init_resource::<Bounds>()
-        .add_systems(Update, input)
+        .add_systems(Update, (input, wrap_cursor).chain())
         .add_systems(PostUpdate, render);
 }
 
 fn input(
     mut cursor: ResMut<Cursor>,
     mut trans: ResMut<Translation>,
+    mut cells: ResMut<Cells>,
     mut keys: MessageReader<KeyPress>,
 ) {
     for key in keys.read() {
@@ -41,6 +42,7 @@ fn input(
             (KeyCode::Right, _) => cursor.x += 1,
             (KeyCode::Up, _) => cursor.y += 1,
             (KeyCode::Down, _) => cursor.y -= 1,
+            (KeyCode::Char(' '), _) => cells.toggle(&cursor),
             _ => {}
         }
     }
@@ -53,7 +55,22 @@ fn render(mut io: ResMut<Io>, view: View) -> Result<()> {
     })
 }
 
-fn wrap_cursor(cursor: ResMut<Cursor>, bounds: Res<Bounds>) {}
+fn wrap_cursor(mut cursor: ResMut<Cursor>, bounds: Res<Bounds>) {
+    let Bounds([x_min, x_max], [y_min, y_max]) = *bounds;
+    let (x_min, x_max, y_min, y_max) = (x_min as i64, x_max as i64, y_min as i64, y_max as i64);
+    if cursor.x < x_min {
+        cursor.x = x_max
+    }
+    if cursor.x > x_max {
+        cursor.x = x_min
+    }
+    if cursor.y < y_min {
+        cursor.y = y_max
+    }
+    if cursor.y > y_max {
+        cursor.y = y_min
+    }
+}
 
 #[derive(Resource, Default, Deref, DerefMut)]
 pub struct Cursor(I64Vec2);
@@ -86,8 +103,8 @@ impl<'w> Widget for View<'w> {
         let y_range = (height * 2 - 1) as f64;
         let Bounds([ref mut x_min, ref mut x_max], [ref mut y_min, ref mut y_max]) = *self.bounds;
 
-        [*x_min, *x_max] = [-x_range / 2., x_range / 2.].map(|p| p + self.trans.x as f64);
-        [*y_min, *y_max] = [-y_range / 2., y_range / 2.].map(|p| p + self.trans.y as f64);
+        [*x_min, *x_max] = [-x_range / 2., x_range / 2.].map(|p| p.floor() + self.trans.x as f64);
+        [*y_min, *y_max] = [-y_range / 2., y_range / 2.].map(|p| p.floor() + self.trans.y as f64);
 
         Canvas::default()
             .marker(Marker::HalfBlock)
