@@ -1,6 +1,6 @@
-use bevy::prelude::*;
+use bevy::{math::I64Vec2, prelude::*};
 use ratatui::{
-    crossterm::event::KeyCode,
+    crossterm::event::{KeyCode, KeyModifiers},
     layout,
     style::Color,
     symbols::Marker,
@@ -23,8 +23,8 @@ fn render(mut io: ResMut<Io>, cursor: Res<Cursor>, cells: Res<Cells>) -> Result<
         let layout::Rect { width, height, .. } = frame.area();
         let x_range = (width - 1) as f64;
         let y_range = (height * 2 - 1) as f64;
-        let [x_min, x_max] = [-x_range / 2., x_range / 2.];
-        let [y_min, y_max] = [-y_range / 2., y_range / 2.];
+        let [x_min, x_max] = [-x_range / 2., x_range / 2.].map(|p| p + cursor.trans.x as f64);
+        let [y_min, y_max] = [-y_range / 2., y_range / 2.].map(|p| p + cursor.trans.y as f64);
         frame.render_widget(
             Canvas::default()
                 .marker(Marker::HalfBlock)
@@ -54,11 +54,15 @@ fn render(mut io: ResMut<Io>, cursor: Res<Cursor>, cells: Res<Cells>) -> Result<
 
 fn input(mut cursor: ResMut<Cursor>, mut keys: MessageReader<KeyPress>) {
     for key in keys.read() {
-        match key.code {
-            KeyCode::Left => cursor.pos.x -= 1,
-            KeyCode::Right => cursor.pos.x += 1,
-            KeyCode::Up => cursor.pos.y += 1,
-            KeyCode::Down => cursor.pos.y -= 1,
+        match (key.code, key.modifiers) {
+            (KeyCode::Left, KeyModifiers::SHIFT) => cursor.trans.x -= 1,
+            (KeyCode::Right, KeyModifiers::SHIFT) => cursor.trans.x += 1,
+            (KeyCode::Up, KeyModifiers::SHIFT) => cursor.trans.y += 1,
+            (KeyCode::Down, KeyModifiers::SHIFT) => cursor.trans.y -= 1,
+            (KeyCode::Left, _) => cursor.pos.x -= 1,
+            (KeyCode::Right, _) => cursor.pos.x += 1,
+            (KeyCode::Up, _) => cursor.pos.y += 1,
+            (KeyCode::Down, _) => cursor.pos.y -= 1,
             _ => {}
         }
     }
@@ -66,6 +70,6 @@ fn input(mut cursor: ResMut<Cursor>, mut keys: MessageReader<KeyPress>) {
 
 #[derive(Resource, Debug, Default)]
 pub struct Cursor {
-    pos: IVec2,
-    trans: IVec2,
+    pos: I64Vec2,
+    trans: I64Vec2,
 }
