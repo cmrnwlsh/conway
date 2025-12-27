@@ -20,6 +20,7 @@ fn main() {
         ))
         .run();
 }
+
 pub struct AppPlugins;
 
 impl PluginGroup for AppPlugins {
