@@ -7,7 +7,7 @@ use ratatui::{
     widgets::canvas::{Canvas, Points},
 };
 
-use crate::plugin::{
+use crate::{
     io::{Io, KeyPress},
     sim::Cells,
 };
@@ -42,7 +42,7 @@ fn render(mut io: ResMut<Io>, cursor: Res<Cursor>, cells: Res<Cells>) -> Result<
                         color: Color::White,
                     });
                     ctx.draw(&Points {
-                        coords: &[(cursor.x as f64, cursor.y as f64)],
+                        coords: &[(cursor.pos.x as f64, cursor.pos.y as f64)],
                         color: Color::Cyan,
                     })
                 }),
@@ -55,10 +55,10 @@ fn render(mut io: ResMut<Io>, cursor: Res<Cursor>, cells: Res<Cells>) -> Result<
 fn input(mut cursor: ResMut<Cursor>, mut keys: MessageReader<KeyPress>) {
     for key in keys.read() {
         match key.code {
-            KeyCode::Left => cursor.x -= 1,
-            KeyCode::Right => cursor.x += 1,
-            KeyCode::Up => cursor.y += 1,
-            KeyCode::Down => cursor.y -= 1,
+            KeyCode::Left => cursor.pos.x -= 1,
+            KeyCode::Right => cursor.pos.x += 1,
+            KeyCode::Up => cursor.pos.y += 1,
+            KeyCode::Down => cursor.pos.y -= 1,
             _ => {}
         }
     }
@@ -66,6 +66,6 @@ fn input(mut cursor: ResMut<Cursor>, mut keys: MessageReader<KeyPress>) {
 
 #[derive(Resource, Debug, Default)]
 pub struct Cursor {
-    x: i64,
-    y: i64,
+    pos: IVec2,
+    trans: IVec2,
 }

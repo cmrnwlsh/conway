@@ -1,9 +1,13 @@
-use bevy::{app::ScheduleRunnerPlugin, prelude::*, state::app::StatesPlugin};
+use bevy::{
+    app::{PluginGroupBuilder, ScheduleRunnerPlugin},
+    prelude::*,
+    state::app::StatesPlugin,
+};
 use std::time::Duration;
 
-use crate::plugin::AppPlugins;
-
-mod plugin;
+mod io;
+mod sim;
+mod ui;
 
 fn main() {
     App::new()
@@ -15,4 +19,14 @@ fn main() {
             AppPlugins,
         ))
         .run();
+}
+pub struct AppPlugins;
+
+impl PluginGroup for AppPlugins {
+    fn build(self) -> PluginGroupBuilder {
+        PluginGroupBuilder::start::<Self>()
+            .add(io::plugin)
+            .add(ui::plugin)
+            .add(sim::plugin)
+    }
 }
