@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 bevy = { version = "0.17.3", default-features = false, features = ["std", "debug", "multi_threaded", "bevy_state"] }
-ratatui = "0.30.0-beta.0"
+ratatui = "0.30.0"
 
 [profile.dev]
 opt-level = 1
