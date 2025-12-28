@@ -16,51 +16,73 @@ use crate::{
     any_changed,
     io::{Io, KeyPress, Size},
     sim::Cells,
+    ui::Ui,
 };
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Cursor>()
         .init_resource::<Translation>()
         .init_resource::<Bounds>()
-        .add_systems(Update, (input, wrap_cursor).chain())
-        .add_systems(PostUpdate, render);
+        .add_systems(
+            Update,
+            (
+                (translate_view, move_cursor, toggle_pause, toggle_cells),
+                wrap_cursor,
+            )
+                .run_if(in_state(Ui::Primary))
+                .chain(),
+        )
+        .add_systems(PostUpdate, render.run_if(in_state(Ui::Primary)));
 }
 
-fn input(
-    mut cursor: ResMut<Cursor>,
-    mut trans: ResMut<Translation>,
-    mut cells: ResMut<Cells>,
-    mut time: ResMut<Time<Virtual>>,
-    mut keys: MessageReader<KeyPress>,
-) {
+type Keys<'w, 's> = MessageReader<'w, 's, KeyPress>;
+
+fn translate_view(mut keys: Keys, mut trans: ResMut<Translation>) {
     for key in keys.read() {
         match (key.code, key.modifiers) {
-            (KeyCode::Left, KeyModifiers::SHIFT) => trans.x -= 1,
-            (KeyCode::Right, KeyModifiers::SHIFT) => trans.x += 1,
-            (KeyCode::Up, KeyModifiers::SHIFT) => trans.y += 1,
-            (KeyCode::Down, KeyModifiers::SHIFT) => trans.y -= 1,
-            (KeyCode::Left, _) => cursor.x -= 1,
-            (KeyCode::Right, _) => cursor.x += 1,
-            (KeyCode::Up, _) => cursor.y += 1,
-            (KeyCode::Down, _) => cursor.y -= 1,
-            (KeyCode::Char(' '), _) => cells.toggle(&cursor),
-            (KeyCode::Char('p'), _) => {
-                if time.is_paused() {
-                    time.unpause()
-                } else {
-                    time.pause()
-                }
-            }
+            (KeyCode::Left, KeyModifiers::CONTROL) => trans.x -= 1,
+            (KeyCode::Right, KeyModifiers::CONTROL) => trans.x += 1,
+            (KeyCode::Up, KeyModifiers::CONTROL) => trans.y += 1,
+            (KeyCode::Down, KeyModifiers::CONTROL) => trans.y -= 1,
             _ => {}
         }
     }
 }
 
-fn render(mut io: ResMut<Io>, view: View) -> Result<()> {
-    Ok(if view.is_changed() {
-        io.draw(|frame| frame.render_widget(view, frame.area()))
-            .map(|_| ())?
-    })
+fn move_cursor(mut keys: Keys, mut cursor: ResMut<Cursor>) {
+    for key in keys.read() {
+        match key.code {
+            KeyCode::Left => cursor.x -= 1,
+            KeyCode::Right => cursor.x += 1,
+            KeyCode::Up => cursor.y += 1,
+            KeyCode::Down => cursor.y -= 1,
+            _ => {}
+        }
+    }
+}
+
+fn toggle_pause(mut keys: Keys, mut time: ResMut<Time<Virtual>>) {
+    for key in keys.read() {
+        if let KeyCode::Char('p') = key.code {
+            if time.is_paused() {
+                time.unpause()
+            } else {
+                time.pause()
+            }
+        }
+    }
+}
+
+fn toggle_cells(mut keys: Keys, mut cells: ResMut<Cells>, cursor: Res<Cursor>) {
+    for key in keys.read() {
+        if key.code == KeyCode::Char(' ') {
+            if key.modifiers == KeyModifiers::CONTROL {
+                cells.remove(&cursor.to_array())
+            } else {
+                cells.insert((**cursor).into())
+            };
+        }
+    }
 }
 
 fn wrap_cursor(mut cursor: ResMut<Cursor>, bounds: Res<Bounds>) {
@@ -80,11 +102,21 @@ fn wrap_cursor(mut cursor: ResMut<Cursor>, bounds: Res<Bounds>) {
     }
 }
 
+fn render(mut io: ResMut<Io>, view: View) -> Result<()> {
+    Ok(if view.is_changed() {
+        io.draw(|frame| frame.render_widget(view, frame.area()))
+            .map(|_| ())?
+    })
+}
+
 #[derive(Resource, Default, Deref, DerefMut)]
 struct Cursor(I64Vec2);
 
 #[derive(Resource, Default, Deref, DerefMut)]
 struct Translation(I64Vec2);
+
+#[derive(Resource, Default, Deref, DerefMut)]
+struct Zoom(u8);
 
 #[derive(Resource, Default)]
 struct Bounds([f64; 2], [f64; 2]);
