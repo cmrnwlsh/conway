@@ -30,6 +30,7 @@ fn input(
     mut cursor: ResMut<Cursor>,
     mut trans: ResMut<Translation>,
     mut cells: ResMut<Cells>,
+    mut time: ResMut<Time<Virtual>>,
     mut keys: MessageReader<KeyPress>,
 ) {
     for key in keys.read() {
@@ -43,6 +44,13 @@ fn input(
             (KeyCode::Up, _) => cursor.y += 1,
             (KeyCode::Down, _) => cursor.y -= 1,
             (KeyCode::Char(' '), _) => cells.toggle(&cursor),
+            (KeyCode::Char('p'), _) => {
+                if time.is_paused() {
+                    time.unpause()
+                } else {
+                    time.pause()
+                }
+            }
             _ => {}
         }
     }
@@ -73,7 +81,7 @@ fn wrap_cursor(mut cursor: ResMut<Cursor>, bounds: Res<Bounds>) {
 }
 
 #[derive(Resource, Default, Deref, DerefMut)]
-pub struct Cursor(I64Vec2);
+struct Cursor(I64Vec2);
 
 #[derive(Resource, Default, Deref, DerefMut)]
 struct Translation(I64Vec2);
@@ -99,8 +107,10 @@ impl<'w> View<'w> {
 impl<'w> Widget for View<'w> {
     fn render(mut self, area: Rect, buf: &mut Buffer) {
         let layout::Rect { width, height, .. } = area;
+
         let x_range = (width - 1) as f64;
         let y_range = (height * 2 - 1) as f64;
+
         let Bounds([ref mut x_min, ref mut x_max], [ref mut y_min, ref mut y_max]) = *self.bounds;
 
         [*x_min, *x_max] = [-x_range / 2., x_range / 2.].map(|p| p.floor() + self.trans.x as f64);

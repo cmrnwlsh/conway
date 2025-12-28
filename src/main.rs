@@ -21,7 +21,7 @@ fn main() {
         .run();
 }
 
-pub struct AppPlugins;
+struct AppPlugins;
 
 impl PluginGroup for AppPlugins {
     fn build(self) -> PluginGroupBuilder {
