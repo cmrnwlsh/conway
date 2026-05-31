@@ -6,8 +6,8 @@ defmodule Conway.Render do
   later phases.)
   """
 
-  alias Conway.{Grid, Viewport, Cursor}
-  alias Conway.Render.{FullBlock, Bars}
+  alias Conway.{Cursor, Grid, Viewport}
+  alias Conway.Render.{Bars, FullBlock}
 
   @spec frame(Grid.t(), Viewport.t(), Cursor.t(), keyword(), keyword(), keyword()) :: [iodata()]
   def frame(grid, %Viewport{zoom: :full} = vp, cursor, top_opts, bottom_opts, opts \\ []) do

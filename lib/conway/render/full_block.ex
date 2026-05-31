@@ -6,7 +6,7 @@ defmodule Conway.Render.FullBlock do
   Returns one binary per grid-area row.
   """
 
-  alias Conway.{Grid, Viewport, Cursor}
+  alias Conway.{Cursor, Grid, Viewport}
 
   @spec render(Grid.t(), Viewport.t(), Cursor.t(), keyword()) :: [binary()]
   def render(grid, %Viewport{zoom: :full} = vp, cursor, opts \\ []) do
@@ -17,16 +17,18 @@ defmodule Conway.Render.FullBlock do
     for r <- 0..(vp.rows - 1)//1 do
       row =
         for c <- 0..(wide - 1)//1 do
-          cell = {vp.cam_x + c, vp.cam_y + r}
-
-          cond do
-            MapSet.member?(footprint, cell) -> glyph(:cursor, color)
-            Grid.alive?(grid, cell) -> glyph(:live, color)
-            true -> glyph(:empty, color)
-          end
+          cell_glyph(grid, footprint, {vp.cam_x + c, vp.cam_y + r}, color)
         end
 
       IO.iodata_to_binary(row)
+    end
+  end
+
+  defp cell_glyph(grid, footprint, cell, color) do
+    cond do
+      MapSet.member?(footprint, cell) -> glyph(:cursor, color)
+      Grid.alive?(grid, cell) -> glyph(:live, color)
+      true -> glyph(:empty, color)
     end
   end
 

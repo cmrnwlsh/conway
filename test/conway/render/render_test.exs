@@ -1,6 +1,6 @@
 defmodule Conway.RenderTest do
   use ExUnit.Case, async: true
-  alias Conway.{Grid, Viewport, Cursor, Pattern, Render}
+  alias Conway.{Cursor, Grid, Pattern, Render, Viewport}
 
   test "frame stacks the top bar, the grid rows, then the two bottom bar lines" do
     grid = Grid.new([{0, 0}])

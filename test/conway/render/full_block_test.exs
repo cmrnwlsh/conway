@@ -1,6 +1,6 @@
 defmodule Conway.Render.FullBlockTest do
   use ExUnit.Case, async: true
-  alias Conway.{Grid, Viewport, Cursor, Pattern}
+  alias Conway.{Cursor, Grid, Pattern, Viewport}
   alias Conway.Render.FullBlock
 
   test "renders live cells as blocks and empties as spaces (plain mode)" do

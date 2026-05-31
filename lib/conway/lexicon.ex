@@ -34,23 +34,24 @@ defmodule Conway.Lexicon do
   # Group lines into {name, body_lines}, one per `:Name:` header. Lines before
   # the first header (the license preamble) are dropped.
   defp chunk_entries(lines) do
-    {entries, current} =
-      Enum.reduce(lines, {[], nil}, fn line, {entries, current} ->
-        case Regex.run(@header, line) do
-          [_, name, rest] ->
-            {push(entries, current), {name, [rest]}}
-
-          nil ->
-            case current do
-              nil -> {entries, nil}
-              {name, body} -> {entries, {name, [line | body]}}
-            end
-        end
-      end)
+    {entries, current} = Enum.reduce(lines, {[], nil}, &accumulate_line/2)
 
     push(entries, current)
     |> Enum.reverse()
     |> Enum.map(fn {name, body} -> {name, Enum.reverse(body)} end)
+  end
+
+  defp accumulate_line(line, {entries, current}) do
+    case Regex.run(@header, line) do
+      [_, name, rest] ->
+        {push(entries, current), {name, [rest]}}
+
+      nil ->
+        case current do
+          nil -> {entries, nil}
+          {name, body} -> {entries, {name, [line | body]}}
+        end
+    end
   end
 
   defp push(entries, nil), do: entries

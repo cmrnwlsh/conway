@@ -5,7 +5,7 @@ defmodule Conway.Demo do
   Phase 2. Run with: `mix run -e "Conway.Demo.run()"`.
   """
 
-  alias Conway.{Grid, Viewport, Cursor, Pattern, Render}
+  alias Conway.{Cursor, Grid, Pattern, Render, Viewport}
 
   @spec run() :: :ok
   def run do
