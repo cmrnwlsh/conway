@@ -35,4 +35,18 @@ defmodule Conway.LexiconTest do
     [p] = Lexicon.parse(text)
     assert p.cells == MapSet.new([{1, 0}, {0, 1}])
   end
+
+  describe "load/0 against the vendored file" do
+    test "parses a large catalog including well-known patterns" do
+      patterns = Lexicon.load()
+      assert length(patterns) > 500
+
+      names = MapSet.new(patterns, &String.downcase(&1.name))
+      assert MapSet.member?(names, "glider")
+      assert Enum.any?(names, &String.contains?(&1, "gosper glider gun"))
+
+      glider = Enum.find(patterns, &(String.downcase(&1.name) == "glider"))
+      assert MapSet.size(glider.cells) == 5
+    end
+  end
 end
