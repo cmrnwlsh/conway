@@ -20,8 +20,8 @@ no TUI framework, no dependencies.
   reach while keeping cells roughly square.
 - A distinctly colored editing cursor whose "stamp" is a pattern the user can
   cycle, search, transform, or draw by hand.
-- The complete Life Lexicon (~800 named patterns with descriptions) available to
-  cycle and search.
+- The complete Life Lexicon (~685 named patterns with descriptions, drawn from
+  ~1000 lexicon entries) available to cycle and search.
 - Top and bottom status bars; the bottom bar is focused on the current stamp's
   name and description. Bars can be hidden for a "terminal wallpaper" view.
 - Play / pause / single-step with adjustable speed.
@@ -467,7 +467,7 @@ Each is independently verifiable. The first two are pure; #3 is first on screen;
 
 1. **Engine core** — `Grid` + `Life`, TDD. ✅ blinker/glider tests pass.
 2. **Patterns + lexicon** — `Pattern` + transforms; `Lexicon.parse`; vendor the
-   plaintext file; `Catalog`. ✅ real file parses to ~800 patterns with
+   plaintext file; `Catalog`. ✅ real file parses to ~685 patterns with
    glider/Gosper present.
 3. **Viewport + full-block (static)** — `Viewport` + `FullBlock` + `Bars` +
    `Render.frame`; a throwaway `mix run` prints one static frame of a seeded

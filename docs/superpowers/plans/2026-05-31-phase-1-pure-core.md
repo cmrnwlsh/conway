@@ -1334,7 +1334,7 @@ defmodule Conway.Demo do
   @spec run() :: :ok
   def run do
     glider = Grid.new([{1, 0}, {2, 1}, {0, 2}, {1, 2}, {2, 2}])
-    vp = %Viewport{cam_x: -2, cam_y: -2, zoom: :full, cols: 60, rows: 16}
+    vp = %Viewport{cam_x: -2, cam_y: -2, zoom: :full, cols: 80, rows: 16}
     cursor = %Cursor{x: 6, y: 4, stamp: Pattern.dot(), visible?: true}
 
     lines =
@@ -1377,10 +1377,11 @@ git commit -m "feat: Render.frame assembly + temporary static demo"
 Run: `mix test`
 Expected: PASS — all Phase 1 modules plus the untouched `mix new` default test. No failures.
 
-- [ ] **Step 2: Check formatting**
+- [ ] **Step 2: Format the code, then verify it's clean**
 
-Run: `mix format --check-formatted`
-Expected: no output (all files formatted). If it reports files, run `mix format` and re-run the suite.
+Run: `mix format`
+Then: `mix format --check-formatted`
+Expected: `mix format` rewrites a few over-long lines in the test files (the long keyword-call and pipe chains); the check then exits cleanly with no output. Re-run `mix test` to confirm all tests still pass — formatting is whitespace-only, so they will.
 
 - [ ] **Step 3: Mark Phase 1 complete in the roadmap**
 
@@ -1389,9 +1390,12 @@ In `docs/superpowers/plans/README.md`, change the Phase 1 row's **Status** colum
 - [ ] **Step 4: Commit**
 
 ```bash
-git add docs/superpowers/plans/README.md
-git commit -m "chore: Phase 1 (pure core) complete"
+git add -A
+git commit -m "chore: format + Phase 1 (pure core) complete"
 ```
+
+(`git add -A` picks up both the roadmap Status change and any whitespace-only
+reformatting from Step 2.)
 
 ---
 
