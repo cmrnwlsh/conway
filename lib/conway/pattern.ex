@@ -20,7 +20,14 @@ defmodule Conway.Pattern do
 
   @doc "A single live cell — the default cursor stamp."
   @spec dot() :: t()
-  def dot, do: %Pattern{name: "single cell", description: "A single live cell.", cells: MapSet.new([{0, 0}]), w: 1, h: 1}
+  def dot,
+    do: %Pattern{
+      name: "single cell",
+      description: "A single live cell.",
+      cells: MapSet.new([{0, 0}]),
+      w: 1,
+      h: 1
+    }
 
   @doc "Build a pattern from ASCII-art rows. `*` and `O` are live; everything else is dead."
   @spec from_ascii(String.t(), String.t(), [String.t()]) :: t()

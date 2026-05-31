@@ -17,7 +17,14 @@ defmodule Conway.CatalogTest do
   test "next and prev wrap around" do
     c = cat()
     assert c |> Catalog.next() |> Catalog.current() |> Map.get(:name) == "block"
-    assert c |> Catalog.next() |> Catalog.next() |> Catalog.next() |> Catalog.current() |> Map.get(:name) == "glider"
+
+    assert c
+           |> Catalog.next()
+           |> Catalog.next()
+           |> Catalog.next()
+           |> Catalog.current()
+           |> Map.get(:name) == "glider"
+
     assert c |> Catalog.prev() |> Catalog.current() |> Map.get(:name) == "Gosper glider gun"
   end
 
@@ -27,7 +34,11 @@ defmodule Conway.CatalogTest do
 
   test "search is case-insensitive substring match returning {index, pattern}" do
     results = Catalog.search(cat(), "gli")
-    assert Enum.map(results, fn {i, p} -> {i, p.name} end) == [{0, "glider"}, {2, "Gosper glider gun"}]
+
+    assert Enum.map(results, fn {i, p} -> {i, p.name} end) == [
+             {0, "glider"},
+             {2, "Gosper glider gun"}
+           ]
   end
 
   test "an empty catalog is safe" do

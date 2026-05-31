@@ -32,6 +32,7 @@ defmodule Conway.Cursor do
 
   @spec footprint(t()) :: MapSet.t({integer(), integer()})
   def footprint(%Cursor{visible?: false}), do: MapSet.new()
+
   def footprint(%Cursor{x: x, y: y, stamp: %Pattern{cells: cells}}) do
     MapSet.new(cells, fn {cx, cy} -> {x + cx, y + cy} end)
   end

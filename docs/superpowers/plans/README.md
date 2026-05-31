@@ -9,7 +9,7 @@ checkboxes (committed to git).
 
 | Phase | Milestones (spec §18) | Plan | Status |
 |-------|-----------------------|------|--------|
-| 1 | 1–3: Grid+Life engine · Pattern+Lexicon+Catalog · Viewport + static full-block render | [`2026-05-31-phase-1-pure-core.md`](2026-05-31-phase-1-pure-core.md) | Not started |
+| 1 | 1–3: Grid+Life engine · Pattern+Lexicon+Catalog · Viewport + static full-block render | [`2026-05-31-phase-1-pure-core.md`](2026-05-31-phase-1-pure-core.md) | Done |
 | 2 | 4–5: Terminal + Input · Interactive MVP (Loop + App reducer) | _to be written after Phase 1_ | Pending |
 | 3 | 6–7: Half-block + Braille renderers · Stamp management (cycle/picker/transform/freehand) | _to be written after Phase 2_ | Pending |
 | 4 | 8: Polish (wallpaper, help, recenter, resize, colors, diffing, CLI args, README) | _to be written after Phase 3_ | Pending |

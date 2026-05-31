@@ -26,7 +26,12 @@ defmodule Conway.PatternTest do
 
   test "rotate_cw four times is the identity" do
     p = Pattern.from_ascii("glider", "", [".*.", "..*", "***"])
-    assert p |> Pattern.rotate_cw() |> Pattern.rotate_cw() |> Pattern.rotate_cw() |> Pattern.rotate_cw() == p
+
+    assert p
+           |> Pattern.rotate_cw()
+           |> Pattern.rotate_cw()
+           |> Pattern.rotate_cw()
+           |> Pattern.rotate_cw() == p
   end
 
   test "rotate_cw turns a 3x1 row into a 1x3 column" do

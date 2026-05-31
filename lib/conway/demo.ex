@@ -18,8 +18,18 @@ defmodule Conway.Demo do
         glider,
         vp,
         cursor,
-        [generation: 0, population: Grid.population(glider), speed: 10, playing?: false, zoom: :full, cursor: {cursor.x, cursor.y}],
-        [name: "glider", description: "c/4 diagonal spaceship; the smallest, most common spaceship."],
+        [
+          generation: 0,
+          population: Grid.population(glider),
+          speed: 10,
+          playing?: false,
+          zoom: :full,
+          cursor: {cursor.x, cursor.y}
+        ],
+        [
+          name: "glider",
+          description: "c/4 diagonal spaceship; the smallest, most common spaceship."
+        ],
         color: true
       )
 

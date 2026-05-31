@@ -11,7 +11,13 @@ defmodule Conway.Viewport do
   alias __MODULE__
 
   @type zoom :: :full | :half | :braille
-  @type t :: %Viewport{cam_x: integer(), cam_y: integer(), zoom: zoom(), cols: non_neg_integer(), rows: non_neg_integer()}
+  @type t :: %Viewport{
+          cam_x: integer(),
+          cam_y: integer(),
+          zoom: zoom(),
+          cols: non_neg_integer(),
+          rows: non_neg_integer()
+        }
 
   defstruct cam_x: 0, cam_y: 0, zoom: :full, cols: 0, rows: 0
 
@@ -33,7 +39,8 @@ defmodule Conway.Viewport do
 
   @doc "Screen `{col, row}` of a world cell at full zoom (2 columns per cell)."
   @spec world_to_screen(t(), {integer(), integer()}) :: {integer(), integer()}
-  def world_to_screen(%Viewport{zoom: :full} = vp, {wx, wy}), do: {(wx - vp.cam_x) * 2, wy - vp.cam_y}
+  def world_to_screen(%Viewport{zoom: :full} = vp, {wx, wy}),
+    do: {(wx - vp.cam_x) * 2, wy - vp.cam_y}
 
   @spec pan(t(), integer(), integer()) :: t()
   def pan(vp, dx, dy), do: %{vp | cam_x: vp.cam_x + dx, cam_y: vp.cam_y + dy}

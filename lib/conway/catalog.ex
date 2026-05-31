@@ -32,7 +32,8 @@ defmodule Conway.Catalog do
   def prev(%Catalog{index: i, count: n} = c), do: %{c | index: rem(i - 1 + n, n)}
 
   @spec select(t(), non_neg_integer()) :: t()
-  def select(%Catalog{count: n} = c, i) when is_integer(i) and i >= 0 and i < n, do: %{c | index: i}
+  def select(%Catalog{count: n} = c, i) when is_integer(i) and i >= 0 and i < n,
+    do: %{c | index: i}
 
   @doc "All `{index, pattern}` whose name contains `query` (case-insensitive)."
   @spec search(t(), String.t()) :: [{non_neg_integer(), Pattern.t()}]
